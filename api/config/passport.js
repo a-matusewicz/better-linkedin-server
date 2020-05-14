@@ -1,12 +1,11 @@
-import bcrypt from 'bcrypt';
-import { secretKey } from '../../config';
-
 const BCRYPT_SALT_ROUNDS = 12;
 
+const bcrypt = require('bcrypt');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
+const { secretKey } = require('../../config');
 const User = require('../sequelize');
 
 passport.use(
