@@ -10,14 +10,14 @@ module.exports = (app) => {
                 console.log(info.message);
                 res.status(404).send(info.message);
             } else {
-                console.log('user found in db from route');
+                console.log('Person found in db from route');
                 res.status(200).send({
                     auth: true,
                     first_name: user.first_name,
                     last_name: user.last_name,
                     email: user.email,
                     username: user.username,
-                    message: 'user found in db',
+                    message: 'Person found in db',
                 });
             }
         })(req, res, next);

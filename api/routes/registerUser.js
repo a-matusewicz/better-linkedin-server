@@ -1,6 +1,6 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const User = require('../sequelize');
+const Person = require('../sequelize');
 const { secretKey } = require('../../config');
 
 module.exports = (app) => {
@@ -20,24 +20,24 @@ module.exports = (app) => {
                         email: req.body.email,
                         username: user.username,
                     };
-                    User.findOne({
+                    Person.findOne({
                         where: {
                             username: data.username,
                         },
-                    }).then((newUser) => {
-                        newUser
+                    }).then((newPerson) => {
+                        newPerson
                             .update({
                                 first_name: data.first_name,
                                 last_name: data.last_name,
                                 email: data.email,
                             })
                             .then(() => {
-                                console.log('user created in db');
+                                console.log('Person created in db');
                                 const token = jwt.sign({ id: user.username }, secretKey);
                                 res.status(200).send({
                                     auth: true,
                                     token,
-                                    message: 'user created',
+                                    message: 'Person created',
                                 });
                             });
                     });

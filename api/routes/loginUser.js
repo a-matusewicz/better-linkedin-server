@@ -1,7 +1,7 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { secretKey } = require('../../config');
-const User = require('../sequelize');
+const Person = require('../sequelize');
 
 
 module.exports = (app) => {
@@ -15,12 +15,12 @@ module.exports = (app) => {
                 res.status(404).send(info.message);
             } else {
                 req.logIn(user, (e) => {
-                    User.findOne({
+                    Person.findOne({
                         where: {
                             username: user.username,
                         },
-                    }).then((foundUser) => {
-                        const token = jwt.sign({ id: foundUser.username }, secretKey);
+                    }).then((foundPerson) => {
+                        const token = jwt.sign({ id: foundPerson.username }, secretKey);
                         res.status(200).send({
                             auth: true,
                             token,
