@@ -77,7 +77,7 @@ router.post('/api/events/createEvent', (req, res) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
                 console.log(JSON.stringify({ status: 400, error, response: results }));
-	 		} else {
+            } else {
                 res.send(JSON.stringify({ status: 200, error: null, response: results }));
             }
         });
