@@ -38,6 +38,7 @@ module.exports = (app) => {
                                     auth: true,
                                     token,
                                     message: 'Person created',
+                                    id: newPerson.id,
                                 });
                             });
                     });

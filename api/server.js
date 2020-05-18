@@ -5,7 +5,7 @@
  * https://itnext.io/implementing-json-web-tokens-passport-js-in-a-javascript-application-with-react-b86b1f313436
  */
 const express = require('express');
-let mysql = require('mysql');
+const mysql = require('mysql');
 const logger = require('morgan');
 const bodyparser = require('body-parser'); // allows us to get passed in api calls easily
 const passport = require('passport');
@@ -33,59 +33,73 @@ app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));
 
 module.exports = app;
 
-// NON-SEQUELIZE API FUNCTIONS 
+// NON-SEQUELIZE API FUNCTIONS
 // Get config for database connection
 // var config = require('./dbconfig')['local']; //read credentials from config.js
-var config = require('../config')['local']; //read credentials from config.js
+const config = require('../config').local; // read credentials from config.js
 
 
 // Database connection
-app.use(function(req, res, next){
-	global.connection = mysql.createConnection({
-		host     : config.database.host, 
-		user     : config.database.user, 
-		password : config.database.password, 
-		database : config.database.schema 
-	});
-	connection.connect();
-	next();
+app.use((req, res, next) => {
+    global.connection = mysql.createConnection({
+        host: config.database.host,
+        user: config.database.user,
+        password: config.database.password,
+        database: config.database.schema,
+    });
+    global.connection.connect();
+    next();
 });
 
-app.use(bodyparser.urlencoded({extended:true}));
+app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 
 // Set up router
-var router = express.Router();
+const router = express.Router();
 
 // Log request types to server console
-router.use(function (req,res,next) {
-	console.log("/" + req.method);
-	next();
+router.use((req, res, next) => {
+    console.log(`/${req.method}`);
+    next();
 });
 
 // Set up routing
 // Calls should be made to /api/employees with GET/PUT/POST/DELETE verbs
-router.get("/",function(req,res){
-	res.send("Yo!  This my API.  Call it right, or don't call it at all!");
+router.get('/', (req, res) => {
+    res.send('Yo!  This my API.  Call it right, or don\'t call it at all!');
 });
 
 // POST -- create new event
-router.post("/api/events/createEvent",function(req,res){
-	global.connection.query('INSERT INTO BetterLinkedIn_sp20.PlannedEvents (EventName, EventTime, EventDescription) VALUES (?, ?, ?)', 
-            [req.body['eventName'], new Date(req.body['eventTime']), req.body['eventDesc']], 
-			function (error, results, fields) {
-		if (error) {
-            console.log(`ERROR!!!`)
-            res.send(JSON.stringify({"status": 400, "error": error, "response": results}));
-            console.log(JSON.stringify({"status": 400, "error": error, "response": results}))
-	 	} else {
-            console.log(`NO ERROR!!!`)
-			res.send(JSON.stringify({"status": 200, "error": null, "response": results}));
+router.post('/api/events/createEvent', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.PlannedEvents (EventName, EventTime, EventDescription) VALUES (?, ?, ?)',
+        [req.body.eventName, new Date(req.body.eventTime), req.body.eventDesc],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+	 		} else {
+                res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// GET - get events for current person
+router.get('/api/users/getEvents/:id', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT a.EventID, EventName, EventTime, EventDescription, IndustryID, \
+IsOrganizer, RSVPDate FROM BetterLinkedIn_sp20.Attending a JOIN BetterLinkedIn_sp20.PlannedEvents e \
+ON a.EventID = e.EventID WHERE a.PersonID = ?',
+    [req.params.id],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
         }
     });
 });
 
-// Start server running on port 3000 
-app.use(express.static(__dirname + '/'));
-app.use("/",router);
-app.set( 'port', ( process.env.PORT || config.port || 3000 ));
+// Start server running on port 3000
+app.use(express.static(`${__dirname}/`));
+app.use('/', router);
+app.set('port', (process.env.PORT || config.port || 3000));
