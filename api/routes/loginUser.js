@@ -25,6 +25,7 @@ module.exports = (app) => {
                             auth: true,
                             token,
                             message: 'user found & logged in',
+                            id: foundPerson.id,
                         });
                     });
                 });

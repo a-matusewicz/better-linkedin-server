@@ -74,11 +74,65 @@ router.post('/api/events/createEvent', (req, res) => {
         [req.body.eventName, new Date(req.body.eventTime), req.body.eventDesc],
         (error, results, fields) => {
             if (error) {
-                console.log('ERROR!!!');
                 res.send(JSON.stringify({ status: 400, error, response: results }));
                 console.log(JSON.stringify({ status: 400, error, response: results }));
             } else {
-                console.log('NO ERROR!!!');
+                res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// GET - get events for current person
+router.get('/api/users/getEvents/:id', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT a.EventID, EventName, EventTime, EventDescription, IndustryID, \
+IsOrganizer, RSVPDate FROM BetterLinkedIn_sp20.Attending a JOIN BetterLinkedIn_sp20.PlannedEvents e \
+ON a.EventID = e.EventID WHERE a.PersonID = ?',
+    [req.params.id],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
+        }
+    });
+});
+
+// GET - get all events
+router.get('/api/events/getEvents', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.PlannedEvents',
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                console.log(results);
+                res.send({ status: 200, error: null, data: results });
+            }
+        });
+});
+
+// DELETE -- remove rsvp record for given person and event
+router.delete('/api/events/:PersonID/:EventID', (req, res) => {
+    global.connection.query('DELETE FROM BetterLinkedIn_sp20.Attending WHERE PersonID = ? AND EventID = ?',
+        [req.params.PersonID, req.params.EventID], (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// POST -- user attending new event
+router.post('/api/events/RSVP', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Attending (PersonID, EventID, IsOrganizer, RSVPDate) VALUES (?, ?, ?, ?)',
+        [req.body.PersonID, req.body.EventID, 0, new Date()],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+            } else {
                 res.send(JSON.stringify({ status: 200, error: null, response: results }));
             }
         });
