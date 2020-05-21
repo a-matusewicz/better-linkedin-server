@@ -71,8 +71,8 @@ router.get('/', (req, res) => {
 
 // POST -- create new event
 router.post('/api/events/createEvent', (req, res) => {
-    global.connection.query('INSERT INTO BetterLinkedIn_sp20.PlannedEvents (EventName, EventTime, EventDescription) VALUES (?, ?, ?)',
-        [req.body.eventName, new Date(req.body.eventTime), req.body.eventDesc],
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.PlannedEvents (EventName, EventTime, EventDescription, IndustryID) VALUES (?, ?, ?, ?)',
+        [req.body.eventName, new Date(req.body.eventTime), req.body.eventDesc, req.body.industryID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -86,9 +86,10 @@ router.post('/api/events/createEvent', (req, res) => {
 // GET - get events for current person
 router.get('/api/users/getEvents/:id', (req, res) => {
     // eslint-disable-next-line no-multi-str
-    global.connection.query('SELECT a.EventID, EventName, EventTime, EventDescription, IndustryID, \
-IsOrganizer, RSVPDate FROM BetterLinkedIn_sp20.Attending a JOIN BetterLinkedIn_sp20.PlannedEvents e \
-ON a.EventID = e.EventID WHERE a.PersonID = ?',
+    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName, IsOrganizer, RSVPDate \
+FROM (SELECT a.EventID, EventName, EventTime, EventDescription, IndustryID, IsOrganizer, RSVPDate  \
+FROM BetterLinkedIn_sp20.Attending a JOIN BetterLinkedIn_sp20.PlannedEvents e ON a.EventID = e.EventID WHERE a.PersonID = 1) as e \
+JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID;',
     [req.params.id],
     (error, results, fields) => {
         if (error) {
@@ -102,15 +103,16 @@ ON a.EventID = e.EventID WHERE a.PersonID = ?',
 // GET - get all events
 router.get('/api/events/getEvents', (req, res) => {
     // eslint-disable-next-line no-multi-str
-    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.PlannedEvents',
-        (error, results, fields) => {
-            if (error) {
-                res.send(JSON.stringify({ status: 400, error, response: results }));
-            } else {
-                console.log(results);
-                res.send({ status: 200, error: null, data: results });
-            }
-        });
+    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName \
+FROM BetterLinkedIn_sp20.PlannedEvents e JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID;',
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            console.log(results);
+            res.send({ status: 200, error: null, data: results });
+        }
+    });
 });
 
 // DELETE -- remove rsvp record for given person and event
@@ -135,6 +137,20 @@ router.post('/api/events/RSVP', (req, res) => {
                 console.log(JSON.stringify({ status: 400, error, response: results }));
             } else {
                 res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// GET - get all industries
+router.get('/api/industries/getIndustries', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Industries',
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                console.log(results);
+                res.send({ status: 200, error: null, data: results });
             }
         });
 });
