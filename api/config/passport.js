@@ -12,23 +12,23 @@ passport.use(
     'register',
     new LocalStrategy(
         {
-            usernameField: 'username',
+            usernameField: 'email',
             passwordField: 'password',
             session: false,
         },
-        (username, password, done) => {
+        (email, password, done) => {
             try {
                 User.findOne({
                     where: {
-                        username,
+                        Email: email,
                     },
                 }).then((user) => {
                     if (user != null) {
-                        console.log('username already taken');
-                        return done(null, false, { message: 'username already taken' });
+                        console.log('email already taken');
+                        return done(null, false, { message: 'email already taken' });
                     } else {
                         return bcrypt.hash(password, BCRYPT_SALT_ROUNDS).then((hashedPassword) => {
-                            User.create({ username, password: hashedPassword }).then((newUser) => {
+                            User.create({ Email: email, Password: hashedPassword }).then((newUser) => {
                                 console.log('user created');
                                 // note the return needed with passport local - remove this return for passport JWT to work
                                 return done(null, newUser);
@@ -47,24 +47,23 @@ passport.use(
     'login',
     new LocalStrategy(
         {
-            usernameField: 'username',
+            usernameField: 'email',
             passwordField: 'password',
             session: false,
         },
-        (username, password, done) => {
+        (email, password, done) => {
             try {
                 User.findOne({
                     where: {
-                        username,
+                        Email: email,
                     },
                 }).then((user) => {
                     if (user === null) {
-                        return done(null, false, { message: 'bad username' });
+                        return done(null, false, { message: 'Email or password is incorrect.' });
                     } else {
-                        return bcrypt.compare(password, user.password).then((response) => {
+                        return bcrypt.compare(password, user.Password).then((response) => {
                             if (response !== true) {
-                                console.log('passwords do not match');
-                                return done(null, false, { message: 'passwords do not match' });
+                                return done(null, false, { message: 'Email or password is incorrect.' });
                             }
                             console.log('user found & authenticated');
                             // note the return needed with passport local - remove this return for passport JWT
@@ -90,7 +89,7 @@ passport.use(
         try {
             User.findOne({
                 where: {
-                    username: jwtPayload.id,
+                    Email: jwtPayload.id,
                 },
             }).then((user) => {
                 if (user) {

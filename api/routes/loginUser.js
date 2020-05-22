@@ -17,15 +17,15 @@ module.exports = (app) => {
                 req.logIn(user, (e) => {
                     Person.findOne({
                         where: {
-                            username: user.username,
+                            email: user.Email,
                         },
                     }).then((foundPerson) => {
-                        const token = jwt.sign({ id: foundPerson.username }, secretKey);
+                        const token = jwt.sign({ id: foundPerson.Email }, secretKey);
                         res.status(200).send({
                             auth: true,
                             token,
                             message: 'user found & logged in',
-                            id: foundPerson.id,
+                            id: foundPerson.PersonID,
                         });
                     });
                 });

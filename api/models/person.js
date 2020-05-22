@@ -1,19 +1,18 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('people', {
-        id: {
+        PersonID: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        first_name: type.STRING,
-        last_name: type.STRING,
-        email: type.STRING,
-        industry: type.STRING,
-        username: {
+        FirstName: type.STRING,
+        LastName: type.STRING,
+        IndustryID: type.STRING,
+        Email: {
             type: type.STRING,
             allowNull: false,
         },
-        password: {
+        Password: {
             type: type.STRING,
             allowNull: false,
         },
