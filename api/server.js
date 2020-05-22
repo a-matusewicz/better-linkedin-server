@@ -114,8 +114,11 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID;',
 // GET - get all events
 router.get('/api/events/getEvents', (req, res) => {
     // eslint-disable-next-line no-multi-str
-    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName \
-FROM BetterLinkedIn_sp20.PlannedEvents e JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID;',
+    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName, OrganizerID, email \
+FROM (SELECT EventID, EventName, EventTime, EventDescription, IndustryName, PersonID as OrganizerID \
+FROM (SELECT e.EventID, EventName, EventTime, EventDescription, IndustryID, PersonID, IsOrganizer, RSVPDate \
+FROM BetterLinkedIn_sp20.PlannedEvents e JOIN BetterLinkedIn_sp20.Attending a ON e.EventID = a.EventID) e \
+JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN People p ON e.OrganizerID = p.id; ',
     (error, results, fields) => {
         if (error) {
             res.send(JSON.stringify({ status: 400, error, response: results }));
