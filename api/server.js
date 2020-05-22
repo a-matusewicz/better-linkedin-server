@@ -70,9 +70,8 @@ router.get('/', (req, res) => {
 
 // POST -- create new event (and RSVP record for creator)
 router.post('/api/events/createEvent', (req, res) => {
-    const currentDate = new Date(req.body.eventTime);
     global.connection.query('INSERT INTO BetterLinkedIn_sp20.PlannedEvents (EventName, EventTime, EventDescription, IndustryID, OrganizerID) VALUES (?, ?, ?, ?, ?)',
-        [req.body.eventName, currentDate, req.body.eventDesc, req.body.industryID, req.body.userID],
+        [req.body.eventName, new Date(req.body.eventTime), req.body.eventDesc, req.body.industryID, req.body.userID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -80,7 +79,7 @@ router.post('/api/events/createEvent', (req, res) => {
             // If event is successfully created, create a record in Attending for the user as the event organizer
             } else {
                 global.connection.query('INSERT INTO BetterLinkedIn_sp20.Attending (PersonID, EventID, IsOrganizer, RSVPDate) VALUES (?, ?, ?, ?)',
-                    [req.body.userID, results.insertId, 1, currentDate],
+                    [req.body.userID, results.insertId, 1, new Date()],
                     (error2, results2, fields2) => {
                         if (error2) {
                             res.send(JSON.stringify({ status: 400, error: error2, response: results2 }));
