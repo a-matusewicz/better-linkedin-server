@@ -96,10 +96,9 @@ router.post('/api/events/createEvent', (req, res) => {
 // GET - get events for current person
 router.get('/api/users/getEvents/:id', (req, res) => {
     // eslint-disable-next-line no-multi-str
-    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName, IsOrganizer, RSVPDate \
-FROM (SELECT a.EventID, EventName, EventTime, EventDescription, IndustryID, IsOrganizer, RSVPDate  \
-FROM BetterLinkedIn_sp20.Attending a JOIN BetterLinkedIn_sp20.PlannedEvents e ON a.EventID = e.EventID WHERE a.PersonID = ?) as e \
-JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID;',
+    global.connection.query('SELECT allEvents.EventID, EventName, EventTime, EventDescription, IndustryName, IsOrganizer, RSVPDate, Email FROM \
+(SELECT EventID, EventName, EventTime, EventDescription, IndustryName FROM BetterLinkedIn_sp20.PlannedEvents p JOIN BetterLinkedIn_sp20.Industries i WHERE p.IndustryID = i.IndustryID) as allEvents \
+JOIN (SELECT a.PersonID, EventID, IsOrganizer, RSVPDate, Email FROM BetterLinkedIn_sp20.Attending a JOIN BetterLinkedIn_sp20.People p ON a.PersonID = p.PersonID WHERE a.PersonID = ?) as allRSVPs;',
     [req.params.id],
     (error, results, fields) => {
         if (error) {
@@ -113,11 +112,11 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID;',
 // GET - get all events
 router.get('/api/events/getEvents', (req, res) => {
     // eslint-disable-next-line no-multi-str
-    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName, OrganizerID, email \
+    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName, OrganizerID, Email \
 FROM (SELECT EventID, EventName, EventTime, EventDescription, IndustryName, PersonID as OrganizerID \
 FROM (SELECT e.EventID, EventName, EventTime, EventDescription, IndustryID, PersonID, IsOrganizer, RSVPDate \
-FROM BetterLinkedIn_sp20.PlannedEvents e JOIN BetterLinkedIn_sp20.Attending a ON e.EventID = a.EventID) e \
-JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN People p ON e.OrganizerID = p.id; ',
+FROM BetterLinkedIn_sp20.PlannedEvents e JOIN BetterLinkedIn_sp20.Attending a ON e.EventID = a.EventID WHERE IsOrganizer = 1) e \
+JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN People p ON e.OrganizerID = p.PersonID; ',
     (error, results, fields) => {
         if (error) {
             res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -142,6 +141,7 @@ router.delete('/api/events/:PersonID/:EventID', (req, res) => {
 
 // POST -- user attending new event
 router.post('/api/events/RSVP', (req, res) => {
+    console.log('IN RSVP');
     global.connection.query('INSERT INTO BetterLinkedIn_sp20.Attending (PersonID, EventID, IsOrganizer, RSVPDate) VALUES (?, ?, ?, ?)',
         [req.body.PersonID, req.body.EventID, 0, new Date()],
         (error, results, fields) => {
