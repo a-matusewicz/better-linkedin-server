@@ -106,7 +106,6 @@ router.get('/api/events/getEvents', (req, res) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
             } else {
-                console.log(results);
                 res.send({ status: 200, error: null, data: results });
             }
         });

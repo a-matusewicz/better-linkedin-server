@@ -4,7 +4,7 @@ const config = {
             host: 'sunapee.cs.dartmouth.edu',
             user: 'USERNAME', // 'your sunapee username here'
             password: 'PASSWORD', // 'your sunapee password here'
-            schema: 'nyc_inspections', // 'your sunapee default schema'
+            schema: 'BetterLinkedIn_sp20', // 'your sunapee default schema'
         },
         port: 3000,
     },
@@ -13,7 +13,7 @@ const config = {
             host: 'localhost',
             user: 'USERNAME', // 'your localhost username here'
             password: 'PASSWORD', // your localhost password here'
-            schema: 'nyc_inspections', // 'your localhost default schema here'
+            schema: 'BetterLinkedIn_sp20', // 'your localhost default schema here'
         },
         port: 3000,
     },

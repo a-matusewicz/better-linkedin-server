@@ -9,31 +9,30 @@ module.exports = (app) => {
             if (err) {
                 console.log(err);
             }
-            if (info !== undefined) {
+            if (info) {
                 console.log(info.message);
                 res.status(404).send(info.message);
             } else {
                 req.logIn(user, (e) => {
                     const data = {
-                        first_name: req.body.first_name,
-                        last_name: req.body.last_name,
-                        email: req.body.email,
-                        username: user.username,
+                        FirstName: req.body.first_name,
+                        LastName: req.body.last_name,
+                        Email: user.Email,
                     };
                     Person.findOne({
                         where: {
-                            username: data.username,
+                            Email: data.Email,
                         },
                     }).then((newPerson) => {
                         newPerson
                             .update({
-                                first_name: data.first_name,
-                                last_name: data.last_name,
-                                email: data.email,
+                                FirstName: data.FirstName,
+                                LastName: data.LastName,
+                                Email: data.Email,
                             })
                             .then(() => {
                                 console.log('Person created in db');
-                                const token = jwt.sign({ id: user.username }, secretKey);
+                                const token = jwt.sign({ id: user.Email }, secretKey);
                                 res.status(200).send({
                                     auth: true,
                                     token,
