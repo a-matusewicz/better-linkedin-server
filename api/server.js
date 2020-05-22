@@ -35,7 +35,6 @@ module.exports = app;
 
 // NON-SEQUELIZE API FUNCTIONS
 // Get config for database connection
-// var config = require('./dbconfig')['local']; //read credentials from config.js
 const config = require('../config').local; // read credentials from config.js
 
 
