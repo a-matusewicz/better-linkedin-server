@@ -230,6 +230,24 @@ JOIN (SELECT a.PersonID, GroupID, IsOrganizer, JoinDate, Email FROM BetterLinked
     });
 });
 
+// GET - get all groups
+router.get('/api/groups/getGroups', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT GroupID, GroupName, GroupDescription, IndustryName, OrganizerID, Email as OrganizerEmail \
+FROM (SELECT GroupID, GroupName, GroupDescription, IndustryName, PersonID as OrganizerID \
+FROM (SELECT e.GroupID, GroupName, GroupDescription, IndustryID, PersonID, IsOrganizer, JoinDate \
+FROM BetterLinkedIn_sp20.InterestGroups e JOIN BetterLinkedIn_sp20.MemberOf a ON e.GroupID = a.GroupID WHERE IsOrganizer = 1) e \
+JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN People p ON e.OrganizerID = p.PersonID;',
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            console.log(results);
+            res.send({ status: 200, error: null, data: results });
+        }
+    });
+});
+
 // Start server running on port 3000
 app.use(express.static(`${__dirname}/`));
 app.use('/', router);
