@@ -187,6 +187,30 @@ router.delete('/api/events/:eventID', (req, res) => {
     });
 });
 
+// POST -- create new group (and member record for creator)
+router.post('/api/groups/createGroup', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.InterestGroups (GroupName, GroupDescription, IndustryID, OrganizerID) VALUES (?, ?, ?, ?)',
+        [req.body.groupName, req.body.groupDesc, req.body.industryID, req.body.userID],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+            // If group is successfully created, create a record in MemberOf for the user as the group organizer
+            } else {
+                global.connection.query('INSERT INTO BetterLinkedIn_sp20.MemberOf (PersonID, GroupID, IsOrganizer, JoinDate) VALUES (?, ?, ?, ?)',
+                    [req.body.userID, results.insertId, 1, new Date()],
+                    (error2, results2, fields2) => {
+                        if (error2) {
+                            res.send(JSON.stringify({ status: 400, error: error2, response: results2 }));
+                            console.log(JSON.stringify({ status: 400, error: error2, response: results2 }));
+                        } else {
+                            res.send(JSON.stringify({ status: 200, error: null, response: results2 }));
+                        }
+                    });
+            }
+        });
+});
+
 // Start server running on port 3000
 app.use(express.static(`${__dirname}/`));
 app.use('/', router);
