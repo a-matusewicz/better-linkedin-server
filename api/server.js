@@ -211,6 +211,25 @@ router.post('/api/groups/createGroup', (req, res) => {
         });
 });
 
+// GET - get groups for current person
+router.get('/api/users/getGroups/:id', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT allGroups.GroupID, GroupName, GroupDescription, IndustryName, IsOrganizer, JoinDate, OrganizerEmail FROM \
+(SELECT GroupID, GroupName, GroupDescription, IndustryName, OrganizerID, Email as OrganizerEmail \
+FROM (SELECT GroupID, GroupName, GroupDescription, IndustryName, OrganizerID FROM BetterLinkedIn_sp20.InterestGroups p \
+JOIN BetterLinkedIn_sp20.Industries i WHERE p.IndustryID = i.IndustryID) as e \
+JOIN BetterLinkedIn_sp20.People p ON e.OrganizerID = p.PersonID) as allGroups \
+JOIN (SELECT a.PersonID, GroupID, IsOrganizer, JoinDate, Email FROM BetterLinkedIn_sp20.MemberOf a JOIN BetterLinkedIn_sp20.People p ON a.PersonID = p.PersonID WHERE a.PersonID = ?) as allMember;',
+    [req.params.id],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
+        }
+    });
+});
+
 // Start server running on port 3000
 app.use(express.static(`${__dirname}/`));
 app.use('/', router);
