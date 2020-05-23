@@ -143,7 +143,6 @@ router.delete('/api/events/:PersonID/:EventID', (req, res) => {
 
 // POST -- user attending new event
 router.post('/api/events/RSVP', (req, res) => {
-    console.log('IN RSVP');
     global.connection.query('INSERT INTO BetterLinkedIn_sp20.Attending (PersonID, EventID, IsOrganizer, RSVPDate) VALUES (?, ?, ?, ?)',
         [req.body.PersonID, req.body.EventID, 0, new Date()],
         (error, results, fields) => {
@@ -244,6 +243,50 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN 
         } else {
             console.log(results);
             res.send({ status: 200, error: null, data: results });
+        }
+    });
+});
+
+// DELETE -- remove membership record for given person and group
+router.delete('/api/groups/:PersonID/:GroupID', (req, res) => {
+    global.connection.query('DELETE FROM BetterLinkedIn_sp20.MemberOf WHERE PersonID = ? AND GroupID = ?',
+        [req.params.PersonID, req.params.GroupID], (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// POST -- user joining a group
+router.post('/api/groups/joinGroup', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.MemberOf (PersonID, GroupID, IsOrganizer, JoinDate) VALUES (?, ?, ?, ?)',
+        [req.body.PersonID, req.body.GroupID, 0, new Date()],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// DELETE -- deletes group and corresponding membership records
+router.delete('/api/groups/:groupID', (req, res) => {
+    global.connection.query('DELETE FROM BetterLinkedIn_sp20.MemberOf WHERE GroupID = ?', [req.params.groupID], (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        // If group successfully deleted, delete corresponding membership records
+        } else {
+            global.connection.query('DELETE FROM BetterLinkedIn_sp20.InterestGroups WHERE GroupID = ?', [req.params.groupID], (error2, results2, fields2) => {
+                if (error2) {
+                    res.send(JSON.stringify({ status: 400, error: error2, response: results2 }));
+                } else {
+                    res.send(JSON.stringify({ status: 200, error: null, response: results2 }));
+                }
+            });
         }
     });
 });
