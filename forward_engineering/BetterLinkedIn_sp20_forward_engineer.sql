@@ -106,12 +106,19 @@ CREATE TABLE IF NOT EXISTS `BetterLinkedIn_sp20`.`InterestGroups` (
   `GroupName` VARCHAR(45) NOT NULL,
   `GroupDescription` VARCHAR(45) NULL,
   `IndustryID` INT NULL,
+  `OrganizerID` INT NOT NULL,
   PRIMARY KEY (`GroupID`),
   UNIQUE INDEX `GroupID_UNIQUE` (`GroupID` ASC) VISIBLE,
   INDEX `fk_Groups_Industries1_idx` (`IndustryID` ASC) VISIBLE,
+  INDEX `fk_InterestGroups_People1_idx` (`OrganizerID` ASC) VISIBLE,
   CONSTRAINT `fk_Groups_Industries1`
     FOREIGN KEY (`IndustryID`)
     REFERENCES `BetterLinkedIn_sp20`.`Industries` (`IndustryID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_InterestGroups_People1`
+    FOREIGN KEY (`OrganizerID`)
+    REFERENCES `BetterLinkedIn_sp20`.`People` (`PersonID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -171,7 +178,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `BetterLinkedIn_sp20`.`MemberOf` (
   `PersonID` INT NOT NULL,
   `GroupID` INT NOT NULL,
-  `GroupRole` VARCHAR(45) NOT NULL,
+  `IsOrganizer` TINYINT NOT NULL,
   `JoinDate` DATETIME NULL,
   PRIMARY KEY (`PersonID`, `GroupID`),
   INDEX `fk_MemberOf_Groups1_idx` (`GroupID` ASC) VISIBLE,
