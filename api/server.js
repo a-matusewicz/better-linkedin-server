@@ -34,9 +34,8 @@ app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));
 module.exports = app;
 
 // NON-SEQUELIZE API FUNCTIONS
-// Get config for database connection
-const config = require('../config').local; // read credentials from config.js
-
+// Get config for database connection (sunapee or local)
+const config = require('../config').sunapee;
 
 // Database connection
 app.use((req, res, next) => {

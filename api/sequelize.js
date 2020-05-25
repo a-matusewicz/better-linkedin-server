@@ -1,4 +1,4 @@
-const env = process.argv[2] || 'local'; // use localhost if enviroment not specified
+const env = 'sunapee'; // can also use localhost here
 const Sequelize = require('sequelize');
 const config = require('../config')[env]; // read credentials from config.js
 const personModel = require('./models/person');
