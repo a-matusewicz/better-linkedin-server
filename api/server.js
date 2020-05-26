@@ -122,7 +122,6 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN 
         if (error) {
             res.send(JSON.stringify({ status: 400, error, response: results }));
         } else {
-            console.log(results);
             res.send({ status: 200, error: null, data: results });
         }
     });
@@ -198,7 +197,6 @@ router.post('/api/groups/createGroup', (req, res) => {
                 global.connection.query('INSERT INTO BetterLinkedIn_sp20.MemberOf (PersonID, GroupID, IsOrganizer, JoinDate) VALUES (?, ?, ?, ?)',
                     [req.body.userID, results.insertId, 1, new Date()],
                     (error2, results2, fields2) => {
-                        console.log('response2');
                         if (error2) {
                             res.send(JSON.stringify({ status: 400, error: error2, response: results2 }));
                             console.log(JSON.stringify({ status: 400, error: error2, response: results2 }));
