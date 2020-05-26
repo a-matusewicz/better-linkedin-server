@@ -30,11 +30,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `BetterLinkedIn_sp20`.`Companies` (
   `CompanyID` INT NOT NULL AUTO_INCREMENT,
-  `CompanyName` VARCHAR(45) NOT NULL,
+  `CompanyName` VARCHAR(255) NOT NULL,
   `IndustryID` INT NULL,
-  `CompanyDescription` VARCHAR(45) NULL,
-  `Email` VARCHAR(150) NOT NULL,
-  `Password` VARCHAR(150) NOT NULL,
+  `CompanyDescription` VARCHAR(255) NULL,
   PRIMARY KEY (`CompanyID`),
   UNIQUE INDEX `CompanyID_UNIQUE` (`CompanyID` ASC) VISIBLE,
   INDEX `fk_Companies_Industries1_idx` (`IndustryID` ASC) VISIBLE,
@@ -76,9 +74,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `BetterLinkedIn_sp20`.`PlannedEvents` (
   `EventID` INT NOT NULL AUTO_INCREMENT,
-  `EventName` VARCHAR(45) NOT NULL,
+  `EventName` VARCHAR(255) NOT NULL,
   `EventTime` DATETIME NULL,
-  `EventDescription` VARCHAR(45) NULL,
+  `EventDescription` VARCHAR(255) NULL,
   `IndustryID` INT NULL,
   `OrganizerID` INT NOT NULL,
   PRIMARY KEY (`EventID`),
@@ -103,8 +101,8 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `BetterLinkedIn_sp20`.`InterestGroups` (
   `GroupID` INT NOT NULL AUTO_INCREMENT,
-  `GroupName` VARCHAR(45) NOT NULL,
-  `GroupDescription` VARCHAR(45) NULL,
+  `GroupName` VARCHAR(255) NOT NULL,
+  `GroupDescription` VARCHAR(255) NULL,
   `IndustryID` INT NULL,
   `OrganizerID` INT NOT NULL,
   PRIMARY KEY (`GroupID`),
@@ -130,10 +128,10 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `BetterLinkedIn_sp20`.`Employed` (
   `CompanyID` INT NOT NULL,
   `PersonID` INT NOT NULL,
-  `CompanyPosition` VARCHAR(45) NOT NULL,
+  `CompanyPosition` VARCHAR(255) NOT NULL,
   `StartDate` DATETIME NULL,
   `EndDate` DATETIME NULL,
-  `EmploymentDescription` VARCHAR(45) NULL,
+  `EmploymentDescription` VARCHAR(255) NULL,
   PRIMARY KEY (`CompanyID`, `PersonID`),
   INDEX `fk_Employed_People1_idx` (`PersonID` ASC) VISIBLE,
   CONSTRAINT `fk_Employed_Companies`
