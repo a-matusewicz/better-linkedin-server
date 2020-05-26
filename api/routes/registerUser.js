@@ -37,7 +37,10 @@ module.exports = (app) => {
                                     auth: true,
                                     token,
                                     message: 'Person created',
-                                    id: newPerson.id,
+                                    id: newPerson.PersonID,
+                                    first_name: newPerson.FirstName,
+                                    last_name: newPerson.LastName,
+                                    email: newPerson.Email,
                                 });
                             });
                     });
