@@ -290,6 +290,33 @@ router.delete('/api/groups/:groupID', (req, res) => {
     });
 });
 
+// POST -- user adding employment history
+router.post('/api/employment/add', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID,PersonID, StartDate, EndDate, EmploymentDescription)',
+        [req.body.companyID,req.body.personID, new Date(req.body.startDate),new Date(req.body.endDate), req.body.posDesc, ],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// GET - get employment for current person
+router.get('/api/users/getEmployment/:id', (req, res) => {
+    global.connection.query('SELECT FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?' ) ,
+    [req.params.id,],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
+        }
+    }
+});
+
 // Start server running on port 3000
 app.use(express.static(`${__dirname}/`));
 app.use('/', router);
