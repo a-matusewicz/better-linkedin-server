@@ -122,7 +122,6 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN 
         if (error) {
             res.send(JSON.stringify({ status: 400, error, response: results }));
         } else {
-            console.log(results);
             res.send({ status: 200, error: null, data: results });
         }
     });
