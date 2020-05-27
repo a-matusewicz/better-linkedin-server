@@ -94,25 +94,14 @@ router.post('/api/events/createEvent', (req, res) => {
 
 // PUT -- update an event event
 router.put('/api/events/updateEvent', (req, res) => {
-    global.connection.query('UPDATE BetterLinkedIn_sp20.PlannedEvents SET (EventName, EventTime, EventDescription, IndustryID, OrganizerID) VALUES (?, ?, ?, ?, ?)',
+    global.connection.query('UPDATE BetterLinkedIn_sp20.PlannedEvents SET (EventName, EventTime, EventDescription, IndustryID) VALUES (?, ?, ?, ?)',
         [req.body.eventName, new Date(req.body.eventTime), req.body.eventDesc, req.body.industryID, req.body.userID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
                 console.log(JSON.stringify({ status: 400, error, response: results }));
             // If event is successfully created, create a record in Attending for the user as the event organizer
-            } else {
-                global.connection.query('UPDATE BetterLinkedIn_sp20.Attending SET (PersonID, EventID, IsOrganizer, RSVPDate) VALUES (?, ?, ?, ?)',
-                    [req.body.userID, results.insertId, 1, new Date()],
-                    (error2, results2, fields2) => {
-                        if (error2) {
-                            res.send(JSON.stringify({ status: 400, error: error2, response: results2 }));
-                            console.log(JSON.stringify({ status: 400, error: error2, response: results2 }));
-                        } else {
-                            res.send(JSON.stringify({ status: 200, error: null, response: results2 }));
-                        }
-                    });
-            }
+            } 
         });
 });
 
