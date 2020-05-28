@@ -155,7 +155,6 @@ router.post('/api/events/RSVP', (req, res) => {
 
 // GET - get all industries
 router.get('/api/industries/getIndustries', (req, res) => {
-    // eslint-disable-next-line no-multi-str
     global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Industries',
         (error, results, fields) => {
             if (error) {
@@ -290,9 +289,9 @@ router.delete('/api/groups/:groupID', (req, res) => {
 });
 
 // POST -- user adding employment history
-router.post('/api/employment/add', (req, res) => {
-    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID,PersonID, StartDate, EndDate, EmploymentDescription)',
-        [req.body.companyID,req.body.personID, new Date(req.body.startDate),new Date(req.body.endDate), req.body.posDesc, ],
+router.post('/api/employment/addEmployment', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID, PersonID, StartDate, EndDate, EmploymentDescription) VALUES (?, ?, ?, ?)',
+        [req.body.companyID, req.body.personID, new Date(req.body.startDate), new Date(req.body.endDate), req.body.posDesc],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -304,16 +303,91 @@ router.post('/api/employment/add', (req, res) => {
 });
 
 // GET - get employment for current person
-router.get('/api/users/getEmployment/:id', (req, res) => {
-    global.connection.query('SELECT FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?' ) ,
-    [req.params.id,],
-    (error, results, fields) => {
+router.get('/api/employment/:id', (req, res) => {
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?',
+        [req.params.id],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send({ status: 200, error: null, data: results });
+            }
+        });
+});
+
+// DELETE -- deletes employed record
+router.delete('/api/employment', (req, res) => {
+    global.connection.query('DELETE FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID = ?', [req.body.personID, req.body.companyID], (error, results, fields) => {
         if (error) {
             res.send(JSON.stringify({ status: 400, error, response: results }));
         } else {
             res.send({ status: 200, error: null, data: results });
         }
-    }
+    });
+});
+
+// GET - get all companies
+router.get('/api/companies/getCompanies', (req, res) => {
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies',
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send({ status: 200, error: null, data: results });
+            }
+        });
+});
+
+// POST -- user creating a company
+router.post('/api/companies/addCompany', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Companies (CompanyName, IndustryID, CompanyDescription) VALUES (?, ?, ?)',
+        [req.body.companyName, req.body.industryID, req.body.companyDescription],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                console.log(results);
+                global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID, PersonID, StartDate, Admin, CompanyPosition)  VALUES (?, ?, ?, ?, ?)',
+                    [results.insertId, req.body.personID, new Date(), true, 'Manager'],
+                    (e, r, f) => {
+                        if (e) {
+                            res.send(JSON.stringify({ status: 400, error: e, response: r }));
+                            console.log(JSON.stringify({ status: 400, error: e, response: r }));
+                        } else {
+                            res.send(JSON.stringify({ status: 200, error: null, response: results }));
+                        }
+                    });
+            }
+        });
+});
+
+// DELETE -- deletes company and corresponding employed records if user is an admin for that company
+router.delete('/api/companies/:companyID', (req, res) => {
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID = ?',
+        [req.body.personID, req.params.companyID],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else if (results.length > 0 && results[0].Admin === 1) {
+                global.connection.query('DELETE FROM BetterLinkedIn_sp20.Employed WHERE CompanyID = ?', [req.params.companyID], (er, re, fi) => {
+                    if (er) {
+                        res.send(JSON.stringify({ status: 400, error: er, response: re }));
+                    // If company successfully deleted, delete corresponding employee records
+                    } else {
+                        global.connection.query('DELETE FROM BetterLinkedIn_sp20.Companies WHERE CompanyID = ?', [req.params.companyID], (e, r, f) => {
+                            if (e) {
+                                res.send(JSON.stringify({ status: 400, error: e, response: r }));
+                            } else {
+                                res.send(JSON.stringify({ status: 200, error: null, response: re }));
+                            }
+                        });
+                    }
+                });
+            } else {
+                res.send(JSON.stringify({ status: 403, error: 'Unauthorized', response: results }));
+            }
+        });
 });
 
 // Start server running on port 3000
