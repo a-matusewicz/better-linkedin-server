@@ -34,9 +34,8 @@ app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));
 module.exports = app;
 
 // NON-SEQUELIZE API FUNCTIONS
-// Get config for database connection
-const config = require('../config').local; // read credentials from config.js
-
+// Get config for database connection (sunapee or local)
+const config = require('../config').sunapee;
 
 // Database connection
 app.use((req, res, next) => {
@@ -137,7 +136,6 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN 
         if (error) {
             res.send(JSON.stringify({ status: 400, error, response: results }));
         } else {
-            console.log(results);
             res.send({ status: 200, error: null, data: results });
         }
     });
@@ -303,6 +301,33 @@ router.delete('/api/groups/:groupID', (req, res) => {
             });
         }
     });
+});
+
+// POST -- user adding employment history
+router.post('/api/employment/add', (req, res) => {
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID,PersonID, StartDate, EndDate, EmploymentDescription)',
+        [req.body.companyID,req.body.personID, new Date(req.body.startDate),new Date(req.body.endDate), req.body.posDesc, ],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send(JSON.stringify({ status: 200, error: null, response: results }));
+            }
+        });
+});
+
+// GET - get employment for current person
+router.get('/api/users/getEmployment/:id', (req, res) => {
+    global.connection.query('SELECT FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?' ) ,
+    [req.params.id,],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
+        }
+    }
 });
 
 // Start server running on port 3000

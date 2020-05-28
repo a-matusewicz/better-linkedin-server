@@ -26,6 +26,9 @@ module.exports = (app) => {
                             token,
                             message: 'user found & logged in',
                             id: foundPerson.PersonID,
+                            first_name: foundPerson.FirstName,
+                            last_name: foundPerson.LastName,
+                            email: foundPerson.Email,
                         });
                     });
                 });
