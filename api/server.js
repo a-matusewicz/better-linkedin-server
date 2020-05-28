@@ -315,6 +315,19 @@ router.get('/api/users/getEmployment/:id', (req, res) => {
         });
 });
 
+// GET - gets empolyees of a company
+router.get('/api/employment/:companyID', (req, res) => {
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.People p JOIN BetterLinkedIn_sp20.Employed e ON p.PersonID=e.PersonID WHERE e.CompanyID = ?',
+        [req.params.companyID],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send({ status: 200, error: null, data: results });
+            }
+        });
+});
+
 // DELETE -- deletes employed record
 router.delete('/api/employment', (req, res) => {
     global.connection.query('DELETE FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID = ?', [req.body.personID, req.body.companyID], (error, results, fields) => {
@@ -376,9 +389,9 @@ router.post('/api/companies/addCompany', (req, res) => {
 });
 
 // DELETE -- deletes company and corresponding employed records if user is an admin for that company
-router.delete('/api/companies/:companyID', (req, res) => {
+router.delete('/api/companies/:companyID/:personID', (req, res) => {
     global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID = ?',
-        [req.body.personID, req.params.companyID],
+        [req.params.personID, req.params.companyID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -398,7 +411,7 @@ router.delete('/api/companies/:companyID', (req, res) => {
                     }
                 });
             } else {
-                res.send(JSON.stringify({ status: 403, error: 'Unauthorized', response: results }));
+                res.status(401).send('Unauthorized');
             }
         });
 });
