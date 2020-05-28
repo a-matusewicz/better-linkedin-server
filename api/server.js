@@ -100,7 +100,6 @@ router.put('/api/events/updateEvent', (req, res) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
                 console.log(JSON.stringify({ status: 400, error, response: results }));
-            // If event is successfully created, create a record in Attending for the user as the event organizer
             } 
         });
 });
