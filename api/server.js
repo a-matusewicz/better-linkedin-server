@@ -317,6 +317,19 @@ router.get('/api/users/getEmployment/:id', (req, res) => {
     }
 });
 
+// Delete - delete employment for current person at company id
+router.delete('/api/users/deleteEmployment/:PersonId/:CompanyId', (req, res) => {
+    global.connection.query('DELETE FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID= ?' ) ,
+    [req.params.PersonId,req.params.CompanyID],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
+        }
+    }
+});
+
 // Start server running on port 3000
 app.use(express.static(`${__dirname}/`));
 app.use('/', router);
