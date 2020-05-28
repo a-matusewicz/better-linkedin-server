@@ -35,7 +35,7 @@ module.exports = app;
 
 // NON-SEQUELIZE API FUNCTIONS
 // Get config for database connection
-const config = require('../config').local; // read credentials from config.js
+const config = require('../config').sunapee; // read credentials from config.js
 
 
 // Database connection
@@ -100,10 +100,9 @@ router.put('/api/events/updateEvent', (req, res) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
                 console.log(JSON.stringify({ status: 400, error, response: results }));
-            } 
+            }
         });
 });
-
 
 
 // GET - get events for current person
