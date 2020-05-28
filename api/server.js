@@ -338,6 +338,19 @@ router.get('/api/companies/getCompanies', (req, res) => {
         });
 });
 
+// GET - get company by ID
+router.get('/api/companies/:companyID', (req, res) => {
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies WHERE CompanyID = ?',
+        [req.params.companyID],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send({ status: 200, error: null, data: results });
+            }
+        });
+});
+
 // POST -- user creating a company
 router.post('/api/companies/addCompany', (req, res) => {
     global.connection.query('INSERT INTO BetterLinkedIn_sp20.Companies (CompanyName, IndustryID, CompanyDescription) VALUES (?, ?, ?)',
