@@ -304,7 +304,7 @@ router.post('/api/employment/add', (req, res) => {
 
 // GET - get employment for current person
 router.get('/api/users/getEmployment/:id', (req, res) => {
-    global.connection.query('SELECT FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?',
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies c JOIN BetterLinkedIn_sp20.Employed e ON c.CompanyID=e.CompanyID WHERE e.PersonID = ?',
         [req.params.id],
         (error, results, fields) => {
             if (error) {
@@ -328,7 +328,7 @@ router.delete('/api/employment', (req, res) => {
 
 // GET - get all companies
 router.get('/api/companies/getCompanies', (req, res) => {
-    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies',
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies c JOIN BetterLinkedIn_sp20.Industries i ON c.IndustryID=i.IndustryID',
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -340,7 +340,7 @@ router.get('/api/companies/getCompanies', (req, res) => {
 
 // GET - get company by ID
 router.get('/api/companies/:companyID', (req, res) => {
-    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies WHERE CompanyID = ?',
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies c JOIN BetterLinkedIn_sp20.Industries i ON c.IndustryID=i.IndustryID WHERE c.CompanyID = ?',
         [req.params.companyID],
         (error, results, fields) => {
             if (error) {
