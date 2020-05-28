@@ -289,7 +289,7 @@ router.delete('/api/groups/:groupID', (req, res) => {
 });
 
 // POST -- user adding employment history
-router.post('/api/employment/addEmployment', (req, res) => {
+router.post('/api/employment/add', (req, res) => {
     global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID, PersonID, StartDate, EndDate, EmploymentDescription) VALUES (?, ?, ?, ?)',
         [req.body.companyID, req.body.personID, new Date(req.body.startDate), new Date(req.body.endDate), req.body.posDesc],
         (error, results, fields) => {
@@ -303,8 +303,8 @@ router.post('/api/employment/addEmployment', (req, res) => {
 });
 
 // GET - get employment for current person
-router.get('/api/employment/:id', (req, res) => {
-    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?',
+router.get('/api/users/getEmployment/:id', (req, res) => {
+    global.connection.query('SELECT FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?',
         [req.params.id],
         (error, results, fields) => {
             if (error) {
