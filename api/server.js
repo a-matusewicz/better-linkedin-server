@@ -318,9 +318,9 @@ router.get('/api/users/getEmployment/:id', (req, res) => {
 });
 
 // Delete - delete employment for current person at company id
-router.delete('/api/deleteEmployment', (req, res) => {
+router.delete('/api/deleteEmployment/:personID/:companyID', (req, res) => {
     global.connection.query('DELETE FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID= ?',
-        [req.body.PersonID, req.body.CompanyID],
+        [req.params.personID, req.params.companyID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
