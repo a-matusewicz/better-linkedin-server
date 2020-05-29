@@ -290,8 +290,8 @@ router.delete('/api/groups/:groupID', (req, res) => {
 
 // POST -- user adding employment history
 router.post('/api/employment/add', (req, res) => {
-    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID, PersonID, StartDate, EndDate, EmploymentDescription) VALUES (?, ?, ?, ?)',
-        [req.body.companyID, req.body.personID, new Date(req.body.startDate), new Date(req.body.endDate), req.body.posDesc],
+    global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID,PersonID, CompanyPosition, StartDate, EndDate, EmploymentDescription) VALUES (?, ?, ?, ?, ?, ?)',
+        [req.body.companyID, req.body.personID, req.body.companyPosition, new Date(req.body.startDate), new Date(req.body.endDate), req.body.description],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -304,7 +304,7 @@ router.post('/api/employment/add', (req, res) => {
 
 // GET - get employment for current person
 router.get('/api/users/getEmployment/:id', (req, res) => {
-    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Companies c JOIN BetterLinkedIn_sp20.Employed e ON c.CompanyID=e.CompanyID WHERE e.PersonID = ?',
+    global.connection.query('SELECT * FROM BetterLinkedIn_sp20.Employed a JOIN BetterLinkedIn_sp20.Companies b ON a.CompanyID=b.CompanyID WHERE a.PersonID = ?',
         [req.params.id],
         (error, results, fields) => {
             if (error) {
@@ -328,15 +328,17 @@ router.get('/api/employment/:companyID', (req, res) => {
         });
 });
 
-// DELETE -- deletes employed record
-router.delete('/api/employment', (req, res) => {
-    global.connection.query('DELETE FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID = ?', [req.body.personID, req.body.companyID], (error, results, fields) => {
-        if (error) {
-            res.send(JSON.stringify({ status: 400, error, response: results }));
-        } else {
-            res.send({ status: 200, error: null, data: results });
-        }
-    });
+// Delete - delete employment for current person at company id
+router.delete('/api/deleteEmployment/:personID/:companyID', (req, res) => {
+    global.connection.query('DELETE FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ? AND CompanyID= ?',
+        [req.params.personID, req.params.companyID],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+            } else {
+                res.send({ status: 200, error: null, data: results });
+            }
+        });
 });
 
 // GET - get all companies
