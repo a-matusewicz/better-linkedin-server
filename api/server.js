@@ -34,8 +34,9 @@ app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));
 module.exports = app;
 
 // NON-SEQUELIZE API FUNCTIONS
-// Get config for database connection (sunapee or local)
-const config = require('../config').sunapee;
+// Get config for database connection
+const config = require('../config').sunapee; // read credentials from config.js
+
 
 // Database connection
 app.use((req, res, next) => {
@@ -100,8 +101,6 @@ router.put('/api/events/updateEvent/:eventID', (req, res) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
                 console.log(JSON.stringify({ status: 400, error, response: results }));
-            } else {
-                res.send({ status: 200, error: null, data: results });
             }
         });
 });
