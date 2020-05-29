@@ -216,7 +216,8 @@ router.get('/api/users/getGroups/:id', (req, res) => {
 FROM (SELECT GroupID, GroupName, GroupDescription, IndustryName, OrganizerID FROM BetterLinkedIn_sp20.InterestGroups p \
 JOIN BetterLinkedIn_sp20.Industries i WHERE p.IndustryID = i.IndustryID) as e \
 JOIN BetterLinkedIn_sp20.People p ON e.OrganizerID = p.PersonID) as allGroups \
-JOIN (SELECT a.PersonID, GroupID, IsOrganizer, JoinDate, Email FROM BetterLinkedIn_sp20.MemberOf a JOIN BetterLinkedIn_sp20.People p ON a.PersonID = p.PersonID WHERE a.PersonID = ?) as allMember;',
+JOIN (SELECT a.PersonID, GroupID, IsOrganizer, JoinDate, Email FROM BetterLinkedIn_sp20.MemberOf a \
+JOIN BetterLinkedIn_sp20.People p ON a.PersonID = p.PersonID WHERE a.PersonID = ?) as allMember WHERE allGroups.GroupID = allMember.GroupID;',
     [req.params.id],
     (error, results, fields) => {
         if (error) {
