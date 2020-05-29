@@ -424,8 +424,8 @@ router.post('/api/companies/addCompany', (req, res) => {
                 console.log(JSON.stringify({ status: 400, error, response: results }));
             } else {
                 console.log(results);
-                global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID, PersonID, StartDate, Admin, CompanyPosition)  VALUES (?, ?, ?, ?, ?)',
-                    [results.insertId, req.body.personID, new Date(), true, 'Manager'],
+                global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID, PersonID, StartDate, EndDate, Admin, CompanyPosition)  VALUES (?, ?, ?, ?, ?, ?)',
+                    [results.insertId, req.body.personID, new Date(), new Date(), true, 'Manager'],
                     (e, r, f) => {
                         if (e) {
                             res.send(JSON.stringify({ status: 400, error: e, response: r }));
