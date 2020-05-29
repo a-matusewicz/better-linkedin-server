@@ -95,8 +95,8 @@ router.post('/api/events/createEvent', (req, res) => {
 // PUT -- update an event
 router.put('/api/events/updateEvent/:eventID', (req, res) => {
     console.log(req.body);
-    global.connection.query('UPDATE `BetterLinkedIn_sp20`.`PlannedEvents` SET `EventName` = ?, `EventTime`= ?,`EventDescription` = ? WHERE `EventID` = ?;',
-        [req.body.name, new Date(), req.body.desc, req.params.eventID],
+    global.connection.query('UPDATE `BetterLinkedIn_sp20`.`PlannedEvents` SET `EventName` = ?, `EventTime`= ?,`EventDescription` = ?, `IndustryID` = ? WHERE `EventID` = ?;',
+        [req.body.name, new Date(), req.body.desc, req.body.ind, req.params.eventID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -109,8 +109,8 @@ router.put('/api/events/updateEvent/:eventID', (req, res) => {
 // PUT -- update a group
 router.put('/api/groups/updateGroup/:groupID', (req, res) => {
     console.log(req.body);
-    global.connection.query('UPDATE `BetterLinkedIn_sp20`.`InterestGroups` SET `GroupName` = ?, `GroupDescription`= ? WHERE `GroupID` = ?;',
-        [req.body.name, req.body.desc, req.params.groupID],
+    global.connection.query('UPDATE `BetterLinkedIn_sp20`.`InterestGroups` SET `GroupName` = ?, `GroupDescription`= ?, `IndustryID` = ? WHERE `GroupID` = ?;',
+        [req.body.name, req.body.desc, req.body.ind, req.params.groupID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
