@@ -34,8 +34,9 @@ app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));
 module.exports = app;
 
 // NON-SEQUELIZE API FUNCTIONS
-// Get config for database connection (sunapee or local)
-const config = require('../config').sunapee;
+// Get config for database connection
+const config = require('../config').sunapee; // read credentials from config.js
+
 
 // Database connection
 app.use((req, res, next) => {
@@ -91,6 +92,20 @@ router.post('/api/events/createEvent', (req, res) => {
         });
 });
 
+// PUT -- update an event
+router.put('/api/events/updateEvent/:eventID', (req, res) => {
+    console.log(req.body);
+    global.connection.query('UPDATE `BetterLinkedIn_sp20`.`PlannedEvents` SET `EventName` = ?, `EventTime`= ?,`EventDescription` = ? WHERE `EventID` = ?;',
+        [req.body.name, new Date(), req.body.desc, req.params.eventID],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
+            }
+        });
+});
+
+
 // GET - get events for current person
 router.get('/api/users/getEvents/:id', (req, res) => {
     // eslint-disable-next-line no-multi-str
@@ -127,6 +142,23 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN 
         }
     });
 });
+
+// GET - get a specific event using event ID
+
+router.get('/api/events/:id', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName, OrganizerID, Email as OrganizerEmail \
+FROM BetterLinkedIn_sp20.PlannedEvents WHERE EventID = ?;',
+    [req.params.id],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
+        }
+    });
+});
+
 
 // DELETE -- remove rsvp record for given person and event
 router.delete('/api/events/:PersonID/:EventID', (req, res) => {
