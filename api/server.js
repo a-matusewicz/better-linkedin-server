@@ -379,7 +379,7 @@ router.post('/api/companies/addCompany', (req, res) => {
             } else {
                 console.log(results);
                 global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID, PersonID, StartDate, Admin, CompanyPosition)  VALUES (?, ?, ?, ?, ?)',
-                    [results.insertId, req.body.personID, new Date(), true, 'Manager'],
+                    [results.insertId, req.body.personID, new Date(req.body.startDate), true, 'Manager'],
                     (e, r, f) => {
                         if (e) {
                             res.send(JSON.stringify({ status: 400, error: e, response: r }));
@@ -388,6 +388,20 @@ router.post('/api/companies/addCompany', (req, res) => {
                             res.send(JSON.stringify({ status: 200, error: null, response: results }));
                         }
                     });
+            }
+        });
+});
+
+
+// PUT -- update an employement
+router.put('/api/employemnts/updateEmp/:companyID/:personID', (req, res) => {
+    console.log(req.body);
+    global.connection.query('UPDATE `BetterLinkedIn_sp20`.`Employed` SET `StartDate` = ?, `EndDate`= ?,`EmploymentDescription` = ? WHERE `CompanyID` = ? and `PersonID`= ? ;',
+        [new Date(req.body.StartDate), new Date(req.body.EndDate), req.body.Desc, req.params.companyID, req.params.personID],
+        (error, results, fields) => {
+            if (error) {
+                res.send(JSON.stringify({ status: 400, error, response: results }));
+                console.log(JSON.stringify({ status: 400, error, response: results }));
             }
         });
 });
