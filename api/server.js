@@ -27,7 +27,7 @@ require('./routes/loginUser')(app);
 require('./routes/registerUser')(app);
 require('./routes/findUser')(app);
 // require('./routes/deleteUser')(app);
-require('./routes/updateUser')(app);
+// require('./routes/updateUser')(app);
 
 app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));
 
@@ -91,18 +91,20 @@ router.post('/api/events/createEvent', (req, res) => {
         });
 });
 
-// PUT -- update an event event
-router.put('/api/events/updateEvent', (req, res) => {
-    global.connection.query('UPDATE BetterLinkedIn_sp20.PlannedEvents SET (EventName, EventTime, EventDescription, IndustryID) VALUES (?, ?, ?, ?)',
-        [req.body.eventName, new Date(req.body.eventTime), req.body.eventDesc, req.body.industryID, req.body.userID],
+// PUT -- update an event
+router.put('/api/events/updateEvent/:eventID', (req, res) => {
+    console.log(req.body);
+    global.connection.query('UPDATE `BetterLinkedIn_sp20`.`PlannedEvents` SET `EventName` = ?, `EventTime`= ?,`EventDescription` = ? WHERE `EventID` = ?;',
+        [req.body.name, new Date(), req.body.desc, req.params.eventID],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
                 console.log(JSON.stringify({ status: 400, error, response: results }));
-            } 
+            } else {
+                res.send({ status: 200, error: null, data: results });
+            }
         });
 });
-
 
 
 // GET - get events for current person
@@ -140,6 +142,23 @@ JOIN BetterLinkedIn_sp20.Industries i ON e.IndustryID = i.IndustryID) as e JOIN 
         }
     });
 });
+
+// GET - get a specific event using event ID
+
+router.get('/api/events/:id', (req, res) => {
+    // eslint-disable-next-line no-multi-str
+    global.connection.query('SELECT EventID, EventName, EventTime, EventDescription, IndustryName, OrganizerID, Email as OrganizerEmail \
+FROM BetterLinkedIn_sp20.PlannedEvents WHERE EventID = ?;',
+    [req.params.id],
+    (error, results, fields) => {
+        if (error) {
+            res.send(JSON.stringify({ status: 400, error, response: results }));
+        } else {
+            res.send({ status: 200, error: null, data: results });
+        }
+    });
+});
+
 
 // DELETE -- remove rsvp record for given person and event
 router.delete('/api/events/:PersonID/:EventID', (req, res) => {
@@ -306,7 +325,7 @@ router.delete('/api/groups/:groupID', (req, res) => {
 // POST -- user adding employment history
 router.post('/api/employment/add', (req, res) => {
     global.connection.query('INSERT INTO BetterLinkedIn_sp20.Employed (CompanyID,PersonID, StartDate, EndDate, EmploymentDescription)',
-        [req.body.companyID,req.body.personID, new Date(req.body.startDate),new Date(req.body.endDate), req.body.posDesc, ],
+        [req.body.companyID, req.body.personID, new Date(req.body.startDate), new Date(req.body.endDate), req.body.posDesc],
         (error, results, fields) => {
             if (error) {
                 res.send(JSON.stringify({ status: 400, error, response: results }));
@@ -319,15 +338,15 @@ router.post('/api/employment/add', (req, res) => {
 
 // GET - get employment for current person
 router.get('/api/users/getEmployment/:id', (req, res) => {
-    global.connection.query('SELECT FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?' ) ,
-    [req.params.id,],
+    global.connection.query('SELECT FROM BetterLinkedIn_sp20.Employed WHERE PersonID = ?'),
+    [req.params.id],
     (error, results, fields) => {
         if (error) {
             res.send(JSON.stringify({ status: 400, error, response: results }));
         } else {
             res.send({ status: 200, error: null, data: results });
         }
-    }
+    };
 });
 
 // Start server running on port 3000
